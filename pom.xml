@@ -11,7 +11,7 @@
         <!-- FIX: Use REAL Spring Boot version -->
         <version>3.2.6</version>
         <relativePath/>
-    </parent>
+    </parent>         
     
     <groupId>com.example</groupId>
     <artifactId>object-detection</artifactId>
@@ -36,14 +36,18 @@
             <artifactId>spring-boot-starter-webflux</artifactId>
         </dependency>
         
-        <!-- 3. REMOVE Spring Data JPA (you don't need a database) -->
-        <!-- <dependency>
+          <dependency>
             <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-starter-data-jpa</artifactId>
-        </dependency> -->
-        
-        <!-- 4. REMOVE Actuator, Cache, and all TEST starters -->
-        <!-- They're not needed for this simple forwarder -->
+            <artifactId>spring-boot-starter-test</artifactId>
+            <scope>test</scope>
+        </dependency>
+
+                <!-- Add to pom.xml -->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-thymeleaf</artifactId>
+        </dependency>
+
     </dependencies>
     
     <build>

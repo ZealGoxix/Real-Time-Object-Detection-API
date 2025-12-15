@@ -1,6 +1,6 @@
 from flask import Flask, request, jsonify
 from flask_cors import CORS
-from transformers import YolosImageProcessor, YolosForObjectDetection
+from transformers import YolosImageProcessor, YolosForObjectDetection # model
 from PIL import Image
 import torch
 import tempfile
@@ -12,7 +12,7 @@ CORS(app)  # Allows your Spring Boot app to call this
 # Load the YOLO model (this happens once when starting)
 print("🔍 Loading YOLO model from Hugging Face...")
 model = YolosForObjectDetection.from_pretrained("hustvl/yolos-tiny")  # Smaller, faster model
-processor = YolosImageProcessor.from_pretrained("hustvl/yolos-tiny")
+processor = YolosImageProcessor.from_pretrained("hustvl/yolos-tiny") # preprocesses image
 print("✅ Model loaded and ready!")
 
 @app.route('/health', methods=['GET'])

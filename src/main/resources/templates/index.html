@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Object Detector</title>
+    <style>
+        body { font-family: Arial, sans-serif; max-width: 800px; margin: 40px auto; padding: 20px; }
+        .upload-box { border: 3px dashed #ccc; padding: 40px; text-align: center; margin: 20px 0; cursor: pointer; }
+        .upload-box:hover { background: #f9f9f9; }
+        #result { margin-top: 30px; padding: 20px; background: #f5f5f5; border-radius: 5px; }
+        .detection-item { padding: 8px; margin: 5px 0; background: white; border-left: 4px solid #4CAF50; }
+        button { background: #4CAF50; color: white; border: none; padding: 12px 24px; font-size: 16px; cursor: pointer; }
+        button:disabled { background: #cccccc; }
+        #imagePreview { max-width: 300px; margin-top: 15px; }
+    </style>
+</head>
+<body>
+    <h1>🔍 Object Detection Demo</h1>
+    <p>Upload an image to detect objects using AI</p>
+    
+    <!-- Upload Form -->
+    <form id="uploadForm">
+        <div class="upload-box" onclick="document.getElementById('fileInput').click()">
+            <p>📁 <strong>Click to select an image</strong></p>
+            <p>or drag and drop here</p>
+            <input type="file" id="fileInput" accept="image/*" style="display: none;" onchange="previewImage(this)">
+        </div>
+        
+        <div id="previewContainer">
+            <img id="imagePreview" style="display: none;">
+        </div>
+        
+        <button type="submit" id="detectBtn">Detect Objects</button>
+        <button type="button" onclick="resetForm()" style="background: #666;">Clear</button>
+    </form>
+    
+    <!-- Results Area -->
+    <div id="result" style="display: none;">
+        <h3>Detection Results</h3>
+        <div id="resultsList"></div>
+        <p><small>API Response time: <span id="responseTime">0</span> seconds</small></p>
+    </div>
+    
+    <script>
+        // Image preview
+        function previewImage(input) {
+            const preview = document.getElementById('imagePreview');
+            if (input.files && input.files[0]) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    preview.src = e.target.result;
+                    preview.style.display = 'block';
+                }
+                reader.readAsDataURL(input.files[0]);
+            }
+        }
+        
+        // Reset form
+        function resetForm() {
+            document.getElementById('fileInput').value = '';
+            document.getElementById('imagePreview').style.display = 'none';
+            document.getElementById('result').style.display = 'none';
+            document.getElementById('resultsList').innerHTML = '';
+        }
+        
+        // Handle form submission
+        document.getElementById('uploadForm').onsubmit = async (e) => {
+            e.preventDefault();
+            
+            const fileInput = document.getElementById('fileInput');
+            if (!fileInput.files[0]) {
+                alert('Please select an image first!');
+                return;
+            }
+            
+            const formData = new FormData();
+            formData.append('image', fileInput.files[0]);
+            
+            // UI updates
+            const detectBtn = document.getElementById('detectBtn');
+            const originalText = detectBtn.innerHTML;
+            detectBtn.innerHTML = '⏳ Processing...';
+            detectBtn.disabled = true;
+            
+            const resultDiv = document.getElementById('result');
+            resultDiv.style.display = 'block';
+            document.getElementById('resultsList').innerHTML = '<p>⏳ Sending to AI...</p>';
+            
+            // Start timer
+            const startTime = Date.now();
+            
+            try {
+                // Call YOUR Spring Boot endpoint
+                const response = await fetch('http://localhost:8080/api/detect', {
+                    method: 'POST',
+                    body: formData
+                });
+                
+                // Calculate response time
+                const endTime = Date.now();
+                const seconds = ((endTime - startTime) / 1000).toFixed(2);
+                document.getElementById('responseTime').textContent = seconds;
+                
+                const data = await response.json();
+                
+                if (data.success) {
+                    let html = `<p><strong>✅ ${data.message}</strong></p>`;
+                    
+                    if (data.detections && data.detections.length > 0) {
+                        html += '<div style="margin-top: 15px;">';
+                        data.detections.forEach(item => {
+                            // Extract confidence from string like "dog (95%)"
+                            const confidence = item.match(/\((\d+)%\)/)?.[1] || '0';
+                            const label = item.replace(/ \(\d+%\)/, '');
+                            
+                            html += `
+                                <div class="detection-item">
+                                    <strong>${label}</strong> - ${confidence}% confidence
+                                </div>
+                            `;
+                        });
+                        html += '</div>';
+                    } else {
+                        html += '<p>No objects detected</p>';
+                    }
+                    
+                    document.getElementById('resultsList').innerHTML = html;
+                } else {
+                    document.getElementById('resultsList').innerHTML = 
+                        `<p style="color: red;">❌ Error: ${data.message || 'Unknown error'}</p>`;
+                }
+                
+            } catch (error) {
+                document.getElementById('resultsList').innerHTML = 
+                    `<p style="color: red;">❌ Network error: ${error.message}</p>`;
+                console.error('Error:', error);
+            } finally {
+                // Reset button
+                detectBtn.innerHTML = originalText;
+                detectBtn.disabled = false;
+            }
+        };
+        
+        // Drag and drop support
+        const uploadBox = document.querySelector('.upload-box');
+        uploadBox.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            uploadBox.style.background = '#e8f5e9';
+        });
+        
+        uploadBox.addEventListener('dragleave', () => {
+            uploadBox.style.background = '';
+        });
+        
+        uploadBox.addEventListener('drop', (e) => {
+            e.preventDefault();
+            uploadBox.style.background = '';
+            
+            const fileInput = document.getElementById('fileInput');
+            if (e.dataTransfer.files.length) {
+                fileInput.files = e.dataTransfer.files;
+                previewImage(fileInput);
+            }
+        });
+        
+        // Instructions
+        console.log('Frontend ready! Make sure:');
+        console.log('1. Python AI service is running: localhost:5000');
+        console.log('2. Spring Boot is running: localhost:8080');
+    </script>
+</body>
+</html>

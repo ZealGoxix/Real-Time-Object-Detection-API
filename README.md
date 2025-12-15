@@ -11,7 +11,7 @@ Wait for: "✅ Model loaded and ready!"
 
 Terminal 2: Start Your Spring Boot App
 bash
-./mvnw spring-boot:run
+./mvnw spring-boot:run 
 
 Terminal 3: Test It!
 bash
