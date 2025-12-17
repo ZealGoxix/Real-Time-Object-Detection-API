@@ -21,3 +21,6 @@ curl -X POST -F "image=@src/images/download.jfif" http://localhost:5000/detect
 
 # Test your Spring Boot app (which calls Python)
 curl -X POST -F "image=@src/images/download.jfif" http://localhost:8080/api/detect
+
+# Now with Frontend
+Open browser on port 8080

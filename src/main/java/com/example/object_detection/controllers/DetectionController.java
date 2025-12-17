@@ -4,6 +4,8 @@ import com.example.object_detection.dto.SimpleDetectionResponse;
 import java.util.List; // Add this import for the List class
 import com.example.object_detection.services.RealAIDetectionService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 

@@ -90,9 +90,9 @@
             
             try {
                 // Call YOUR Spring Boot endpoint
-                const response = await fetch('http://localhost:8080/api/detect', {
+                const response = await fetch('/api/detect', {
                     method: 'POST',
-                    body: formData
+                    body: formData,
                 });
                 
                 // Calculate response time
